@@ -4,6 +4,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import fr.mythseur.domain.User;
 import org.springframework.data.elasticsearch.core.ReactiveElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.repository.ReactiveElasticsearchRepository;
 import reactor.core.publisher.Flux;
@@ -14,7 +15,7 @@ import reactor.core.publisher.Flux;
 public interface UserSearchRepository extends ReactiveElasticsearchRepository<User, String>, UserSearchRepositoryInternal {}
 
 interface UserSearchRepositoryInternal {
-    Flux<User> search(String query);
+    Flux<SearchHit<User>> search(String query);
 }
 
 class UserSearchRepositoryInternalImpl implements UserSearchRepositoryInternal {
@@ -26,8 +27,8 @@ class UserSearchRepositoryInternalImpl implements UserSearchRepositoryInternal {
     }
 
     @Override
-    public Flux<User> search(String query) {
+    public Flux<SearchHit<User>> search(String query) {
         NativeSearchQuery nativeSearchQuery = new NativeSearchQuery(queryStringQuery(query));
-        return reactiveElasticsearchTemplate.find(nativeSearchQuery, User.class);
+        return reactiveElasticsearchTemplate.search(nativeSearchQuery, User.class);
     }
 }

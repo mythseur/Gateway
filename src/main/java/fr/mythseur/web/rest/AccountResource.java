@@ -6,8 +6,9 @@ import fr.mythseur.service.MailService;
 import fr.mythseur.service.UserService;
 import fr.mythseur.service.dto.AdminUserDTO;
 import fr.mythseur.service.dto.PasswordChangeDTO;
-import fr.mythseur.service.dto.UserDTO;
-import fr.mythseur.web.rest.errors.*;
+import fr.mythseur.web.rest.errors.EmailAlreadyUsedException;
+import fr.mythseur.web.rest.errors.InvalidPasswordException;
+import fr.mythseur.web.rest.errors.LoginAlreadyUsedException;
 import fr.mythseur.web.rest.vm.KeyAndPasswordVM;
 import fr.mythseur.web.rest.vm.ManagedUserVM;
 import java.security.Principal;
@@ -126,7 +127,7 @@ public class AccountResource {
                         .hasElement()
                         .flatMap(
                             emailExists -> {
-                                if (emailExists) {
+                                if (Boolean.TRUE.equals(emailExists)) {
                                     throw new EmailAlreadyUsedException();
                                 }
                                 return userRepository.findOneByLogin(userLogin);

@@ -66,12 +66,12 @@ public class LocaleConfiguration {
             return new TimeZoneAwareLocaleContext() {
                 @Override
                 public Locale getLocale() {
-                    return (Locale) exchange.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
+                    return exchange.getAttribute(LOCALE_REQUEST_ATTRIBUTE_NAME);
                 }
 
                 @Override
                 public TimeZone getTimeZone() {
-                    return (TimeZone) exchange.getAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
+                    return exchange.getAttribute(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
                 }
             };
         }
@@ -94,14 +94,7 @@ public class LocaleConfiguration {
             } else {
                 removeCookie(exchange.getResponse());
             }
-            exchange
-                .getAttributes()
-                .put(LOCALE_REQUEST_ATTRIBUTE_NAME, (locale != null ? locale : LocaleContextHolder.getLocale(exchange.getLocaleContext())));
-            if (timeZone != null) {
-                exchange.getAttributes().put(TIME_ZONE_REQUEST_ATTRIBUTE_NAME, timeZone);
-            } else {
-                exchange.getAttributes().remove(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
-            }
+            treatExchange(exchange, locale, timeZone, LocaleContextHolder.getLocale(exchange.getLocaleContext()));
         }
 
         private void addCookie(@Nonnull ServerHttpResponse response, String cookieValue) {
@@ -145,25 +138,31 @@ public class LocaleConfiguration {
                     if (timeZonePart != null) {
                         timeZone = StringUtils.parseTimeZoneString(timeZonePart);
                     }
-                    if (logger.isTraceEnabled()) {
-                        logger.trace(
-                            "Parsed cookie value [" +
-                            cookie.getValue() +
-                            "] into locale '" +
-                            locale +
-                            "'" +
-                            (timeZone != null ? " and time zone '" + timeZone.getID() + "'" : "")
-                        );
-                    }
+                    traceCookie(cookie, locale, timeZone);
                 }
-                exchange
-                    .getAttributes()
-                    .put(LOCALE_REQUEST_ATTRIBUTE_NAME, locale != null ? locale : exchange.getLocaleContext().getLocale());
-                if (timeZone != null) {
-                    exchange.getAttributes().put(TIME_ZONE_REQUEST_ATTRIBUTE_NAME, timeZone);
-                } else {
-                    exchange.getAttributes().remove(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
-                }
+                treatExchange(exchange, locale, timeZone, exchange.getLocaleContext().getLocale());
+            }
+        }
+
+        private void treatExchange(ServerWebExchange exchange, Locale locale, TimeZone timeZone, Locale locale2) {
+            exchange.getAttributes().put(LOCALE_REQUEST_ATTRIBUTE_NAME, locale != null ? locale : locale2);
+            if (timeZone != null) {
+                exchange.getAttributes().put(TIME_ZONE_REQUEST_ATTRIBUTE_NAME, timeZone);
+            } else {
+                exchange.getAttributes().remove(TIME_ZONE_REQUEST_ATTRIBUTE_NAME);
+            }
+        }
+
+        private void traceCookie(HttpCookie cookie, Locale locale, TimeZone timeZone) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(
+                    "Parsed cookie value [" +
+                    cookie.getValue() +
+                    "] into locale '" +
+                    locale +
+                    "'" +
+                    (timeZone != null ? " and time zone '" + timeZone.getID() + "'" : "")
+                );
             }
         }
     }

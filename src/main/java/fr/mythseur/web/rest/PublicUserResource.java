@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -83,6 +85,6 @@ public class PublicUserResource {
      */
     @GetMapping("/_search/users/{query}")
     public Mono<List<UserDTO>> search(@PathVariable String query) {
-        return userSearchRepository.search(query).map(UserDTO::new).collectList();
+        return userSearchRepository.search(query).map(SearchHit::getContent).map(UserDTO::new).collectList();
     }
 }

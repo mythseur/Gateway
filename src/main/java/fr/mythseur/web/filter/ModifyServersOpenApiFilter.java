@@ -88,7 +88,7 @@ public class ModifyServersOpenApiFilter implements GlobalFilter, Ordered {
             if (body instanceof Flux) {
                 Flux<? extends DataBuffer> fluxBody = (Flux<? extends DataBuffer>) body;
 
-                return super.writeWith(fluxBody.buffer().map(dataBuffers -> rewriteBodyWithServers(dataBuffers)));
+                return super.writeWith(fluxBody.buffer().map(this::rewriteBodyWithServers));
             }
             // when body is not a flux
             return super.writeWith(body);

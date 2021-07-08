@@ -72,7 +72,7 @@ public class TokenProvider {
             .claim(AUTHORITIES_KEY, authorities)
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
-            .serializeToJsonWith(new JacksonSerializer())
+            .serializeToJsonWith(new JacksonSerializer<>())
             .compact();
     }
 
